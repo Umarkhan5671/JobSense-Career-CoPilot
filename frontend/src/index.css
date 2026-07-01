@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbars and styling tweaks if needed */
+body {
+  overflow-y: scroll;
+}

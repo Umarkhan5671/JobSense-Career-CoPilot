@@ -1,0 +1,27 @@
+# Node
+node_modules/
+dist/
+build/
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Environment
+.env
+.env.*
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# FAISS (optional - agar vector DB GitHub par nahi rakhna)
+*.faiss
+*.pkl
