@@ -1,6 +1,7 @@
 import datetime
 from jinja2 import Template
-from playwright.async_api import async_playwright
+from playwright.sync_api import sync_playwright
+import asyncio
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -345,6 +346,21 @@ HTML_TEMPLATE = """
 </html>
 """
 
+def generate_pdf_sync(html: str) -> bytes:
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context()
+        page = context.new_page()
+        page.set_content(html)
+        page.evaluate("document.fonts.ready")
+        pdf_bytes = page.pdf(
+            format="A4",
+            print_background=True,
+            margin={"top": "15mm", "bottom": "15mm", "left": "15mm", "right": "15mm"}
+        )
+        browser.close()
+        return pdf_bytes
+
 async def export_report_to_pdf(report_data: dict) -> bytes:
     now = datetime.datetime.now()
     formatted_date = now.strftime("%B %d, %Y")
@@ -356,23 +372,5 @@ async def export_report_to_pdf(report_data: dict) -> bytes:
         year=now.year
     )
     
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context()
-        page = await context.new_page()
-        
-        # Load rendered HTML content
-        await page.set_content(html_content)
-        
-        # Wait for Google Fonts and layout to stabilize
-        await page.evaluate("document.fonts.ready")
-        
-        # Print to PDF using Chromium's built-in print API
-        pdf_bytes = await page.pdf(
-            format="A4",
-            print_background=True,
-            margin={"top": "15mm", "bottom": "15mm", "left": "15mm", "right": "15mm"}
-        )
-        
-        await browser.close()
-        return pdf_bytes
+    pdf_bytes = await asyncio.to_thread(generate_pdf_sync, html_content)
+    return pdf_bytes
