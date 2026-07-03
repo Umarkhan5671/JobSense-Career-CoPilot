@@ -12,6 +12,9 @@ except Exception:
     pass
 
 import os
+# Programmatically set Playwright browser path to the cached project directory
+os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/app/.cache/ms-playwright"
+
 import tempfile
 import logging
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, status, BackgroundTasks, Depends
@@ -71,8 +74,8 @@ def health_check():
 def version_check():
     """Diagnostic endpoint to verify current live code version."""
     return {
-        "version": "2.3-playwright-cache-pushed",
-        "timestamp": "2026-07-03-23:20"
+        "version": "2.4-playwright-cache-python",
+        "timestamp": "2026-07-03-23:23"
     }
 
 
