@@ -74,8 +74,8 @@ def health_check():
 def version_check():
     """Diagnostic endpoint to verify current live code version."""
     return {
-        "version": "2.5-playwright-cache-build-env",
-        "timestamp": "2026-07-03-23:25"
+        "version": "2.6-playwright-cache-install-phase",
+        "timestamp": "2026-07-03-23:30"
     }
 
 
