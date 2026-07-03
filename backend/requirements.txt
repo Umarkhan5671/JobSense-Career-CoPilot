@@ -5,6 +5,7 @@ langchain-community>=0.3.24
 langchain-huggingface>=0.1.2
 faiss-cpu>=1.14.3
 pymupdf>=1.25.5
+pypdf>=5.0.0
 python-dotenv>=1.1.0
 pydantic>=2.7.4
 sentence-transformers>=3.4.1
