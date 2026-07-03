@@ -470,10 +470,12 @@ async def export_report(
         )
         
     except Exception as e:
+        import traceback
+        tb_str = traceback.format_exc()
         logger.error(f"Failed to export report PDF: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error exporting PDF report: {str(e)}"
+            detail=f"Error exporting PDF report: {str(e)}\nTraceback:\n{tb_str}"
         )
 
 
@@ -695,8 +697,10 @@ async def custom_http_exception_handler(request, exc):
 
 @app.exception_handler(Exception)
 async def custom_general_exception_handler(request, exc):
+    import traceback
+    tb_str = traceback.format_exc()
     logger.error(f"Unhandled exception: {str(exc)}", exc_info=True)
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "An unexpected error occurred. Please try again later."}
+        content={"detail": f"An unexpected error occurred: {str(exc)}\nTraceback:\n{tb_str}"}
     )
