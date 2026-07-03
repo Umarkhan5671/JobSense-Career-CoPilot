@@ -2,7 +2,7 @@ import axios from 'axios';
 import { supabase } from './supabaseClient';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://jobsense-career-copilot-production.up.railway.app/api',
   timeout: 300000, // 300 seconds / 5 minutes (analysis runs 5 tailoring passes + Groq retries)
 });
 
