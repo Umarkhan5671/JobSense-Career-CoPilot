@@ -25,22 +25,22 @@ export default function ScoreGauge({ score }) {
 
   // Color mapping based on score
   let strokeColor = 'stroke-rose-500';
-  let bgColor = 'bg-rose-50';
-  let textColor = 'text-rose-700';
-  let ringBgColor = 'stroke-rose-100';
+  let bgColor = 'bg-rose-950/25 border-rose-900/30';
+  let textColor = 'text-rose-400';
+  let ringBgColor = 'stroke-rose-950';
   let ratingText = 'Needs Work';
 
   if (score >= 75) {
     strokeColor = 'stroke-emerald-500';
-    bgColor = 'bg-emerald-50';
-    textColor = 'text-emerald-700';
-    ringBgColor = 'stroke-emerald-100';
+    bgColor = 'bg-emerald-950/25 border-emerald-900/30';
+    textColor = 'text-emerald-400';
+    ringBgColor = 'stroke-emerald-950';
     ratingText = 'Strong Match';
   } else if (score >= 50) {
     strokeColor = 'stroke-amber-500';
-    bgColor = 'bg-amber-50';
-    textColor = 'text-amber-700';
-    ringBgColor = 'stroke-amber-100';
+    bgColor = 'bg-amber-950/25 border-amber-900/30';
+    textColor = 'text-amber-400';
+    ringBgColor = 'stroke-amber-950';
     ratingText = 'Good Fit';
   }
 
@@ -51,7 +51,7 @@ export default function ScoreGauge({ score }) {
   const strokeDashoffset = circumference - (circumference * score) / 100;
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-2xl shadow-sm">
+    <div className="flex flex-col items-center justify-center p-6 bg-dark-panel border border-dark-border rounded-2xl shadow-2xl">
       <div className="relative w-40 h-40 flex items-center justify-center">
         {/* SVG gauge */}
         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 140 140">
@@ -82,17 +82,17 @@ export default function ScoreGauge({ score }) {
         
         {/* Center Text */}
         <div className="absolute text-center">
-          <span className="font-heading font-bold text-4xl text-slate-800">
+          <span className="font-heading font-bold text-4xl text-white">
             {displayScore}%
           </span>
-          <span className="block text-[10px] uppercase tracking-wider font-semibold text-slate-400 mt-0.5">
+          <span className="block text-[10px] uppercase tracking-wider font-semibold text-slate-500 mt-0.5">
             Match Score
           </span>
         </div>
       </div>
 
       {/* Dynamic Rating Badge */}
-      <div className={`mt-4 px-3.5 py-1 rounded-full text-xs font-semibold border ${textColor} ${bgColor} border-current`}>
+      <div className={`mt-4 px-3.5 py-1 rounded-full text-xs font-semibold border ${textColor} ${bgColor}`}>
         {ratingText}
       </div>
     </div>

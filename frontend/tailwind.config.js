@@ -12,12 +12,21 @@ export default {
       },
       colors: {
         brand: {
-          50: '#f5f3ff',
-          100: '#ede9fe',
-          200: '#ddd6fe',
-          500: '#8b5cf6',
-          600: '#7c3aed',
-          700: '#6d28d9',
+          50: '#fcfaf2',
+          100: '#f7f1db',
+          200: '#eddcb3',
+          500: '#d97706',
+          600: '#c5a880', // Refined bronze/gold
+          700: '#a38458',
+          gold: '#dfb76c',
+          bronze: '#c5a880',
+        },
+        dark: {
+          base: '#0b0f17',
+          panel: '#121824',
+          card: '#161f30',
+          border: '#242f47',
+          accent: '#c5a880',
         }
       }
     },

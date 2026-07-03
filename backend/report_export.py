@@ -1,6 +1,5 @@
 import datetime
 from jinja2 import Template
-from playwright.sync_api import sync_playwright
 import asyncio
 
 HTML_TEMPLATE = """
@@ -347,6 +346,7 @@ HTML_TEMPLATE = """
 """
 
 def generate_pdf_sync(html: str) -> bytes:
+    from playwright.sync_api import sync_playwright
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context()

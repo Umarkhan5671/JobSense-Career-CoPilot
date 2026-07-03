@@ -1,5 +1,5 @@
 import os
-from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -19,7 +19,7 @@ splitter = RecursiveCharacterTextSplitter(
 
 def ingest_pdf(pdf_path: str) -> FAISS:
     """Load a PDF file → split into chunks → embed → return FAISS store."""
-    loader = PyMuPDFLoader(pdf_path)
+    loader = PyPDFLoader(pdf_path)
     docs = loader.load()
 
     if not docs:
