@@ -67,6 +67,15 @@ def health_check():
     }
 
 
+@app.get("/api/version")
+def version_check():
+    """Diagnostic endpoint to verify current live code version."""
+    return {
+        "version": "2.1-utf8-pdf-fix",
+        "timestamp": "2026-07-03-22:52"
+    }
+
+
 @app.get("/api/profile")
 async def get_profile(current_user: dict = Depends(get_current_user)):
     supabase = get_supabase_client()
