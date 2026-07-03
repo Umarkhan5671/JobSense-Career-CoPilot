@@ -71,8 +71,8 @@ def health_check():
 def version_check():
     """Diagnostic endpoint to verify current live code version."""
     return {
-        "version": "2.1-utf8-pdf-fix-tb-debug",
-        "timestamp": "2026-07-03-23:10"
+        "version": "2.2-playwright-cache-fix",
+        "timestamp": "2026-07-03-23:13"
     }
 
 

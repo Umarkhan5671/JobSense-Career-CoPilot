@@ -8,6 +8,7 @@ dependsOn = ["install"]
 cmds = ["playwright install --with-deps chromium"]
 
 [variables]
+PLAYWRIGHT_BROWSERS_PATH = "/app/.cache/ms-playwright"
 PYTHONUTF8 = "1"
 PYTHONIOENCODING = "utf-8"
 LANG = "en_US.UTF-8"
