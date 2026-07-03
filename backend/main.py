@@ -76,6 +76,20 @@ def version_check():
     }
 
 
+@app.get("/api/sys-info")
+def sys_info_check():
+    """Check platform and encoding environment settings on the host."""
+    import sys, locale, platform
+    return {
+        "platform": platform.platform(),
+        "sys_platform": sys.platform,
+        "os_name": os.name,
+        "preferred_encoding": locale.getpreferredencoding(),
+        "stdout_encoding": getattr(sys.stdout, "encoding", "unknown"),
+        "stderr_encoding": getattr(sys.stderr, "encoding", "unknown")
+    }
+
+
 @app.get("/api/profile")
 async def get_profile(current_user: dict = Depends(get_current_user)):
     supabase = get_supabase_client()
