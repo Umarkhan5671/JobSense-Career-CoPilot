@@ -585,8 +585,8 @@ async def compare_resumes_endpoint(
             tmp.write(content)
             temp_pdf_path = tmp.name
             
-        from langchain_community.document_loaders import PyMuPDFLoader
-        loader = PyMuPDFLoader(temp_pdf_path)
+        from langchain_community.document_loaders import PyPDFLoader
+        loader = PyPDFLoader(temp_pdf_path)
         docs = loader.load()
         if not docs:
             raise HTTPException(
