@@ -12,8 +12,8 @@ except Exception:
     pass
 
 import os
-# Programmatically set Playwright browser path to the cached project directory
-os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/app/.cache/ms-playwright"
+# Programmatically set Playwright browser path to the virtualenv directory (preserved by Nixpacks)
+os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/app/.venv/ms-playwright"
 
 import tempfile
 import logging
@@ -74,8 +74,8 @@ def health_check():
 def version_check():
     """Diagnostic endpoint to verify current live code version."""
     return {
-        "version": "2.6-playwright-cache-install-phase",
-        "timestamp": "2026-07-03-23:30"
+        "version": "2.7-playwright-cache-venv-dir",
+        "timestamp": "2026-07-03-23:35"
     }
 
 

@@ -3,11 +3,11 @@
 [phases.install]
 cmds = [
     "pip install -r requirements.txt",
-    "PLAYWRIGHT_BROWSERS_PATH=/app/.cache/ms-playwright playwright install --with-deps chromium"
+    "PLAYWRIGHT_BROWSERS_PATH=/app/.venv/ms-playwright playwright install --with-deps chromium"
 ]
 
 [variables]
-PLAYWRIGHT_BROWSERS_PATH = "/app/.cache/ms-playwright"
+PLAYWRIGHT_BROWSERS_PATH = "/app/.venv/ms-playwright"
 PYTHONUTF8 = "1"
 PYTHONIOENCODING = "utf-8"
 LANG = "en_US.UTF-8"
