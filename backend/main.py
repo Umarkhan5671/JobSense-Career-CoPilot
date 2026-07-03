@@ -41,7 +41,7 @@ app = FastAPI(
 # Enable CORS for frontend development servers supporting dynamic local ports
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"http://localhost:\d+",
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?|https://jobsense-ai(-[a-z0-9-]+)?\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
