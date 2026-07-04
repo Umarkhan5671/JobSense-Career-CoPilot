@@ -1,0 +1,13 @@
+# nixpacks.toml
+
+[phases.setup]
+nixPkgs = ["chromium"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[variables]
+PYTHONUTF8 = "1"
+PYTHONIOENCODING = "utf-8"
+LANG = "en_US.UTF-8"
+LC_ALL = "en_US.UTF-8"

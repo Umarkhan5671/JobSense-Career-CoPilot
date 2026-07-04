@@ -27,6 +27,15 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("jobsense-backend")
 
+# Programmatically detect system-installed Chromium (e.g., from Nixpkgs)
+import shutil
+system_chromium = shutil.which("chromium") or shutil.which("chromium-browser")
+if system_chromium:
+    logger.info(f"System Chromium detected at: {system_chromium}. Overriding PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH.")
+    os.environ["PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH"] = system_chromium
+else:
+    logger.info("System Chromium not found in PATH. Using default Playwright browser path.")
+
 # Fail fast at startup if GROQ_API_KEY is missing
 groq_key = os.getenv("GROQ_API_KEY")
 if not groq_key:
@@ -71,8 +80,8 @@ def health_check():
 def version_check():
     """Diagnostic endpoint to verify current live code version."""
     return {
-        "version": "4.0-docker-deployment",
-        "timestamp": "2026-07-04-09:40"
+        "version": "5.0-nix-chromium",
+        "timestamp": "2026-07-04-09:45"
     }
 
 
