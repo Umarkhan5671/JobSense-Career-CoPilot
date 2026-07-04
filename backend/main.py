@@ -74,8 +74,8 @@ def health_check():
 def version_check():
     """Diagnostic endpoint to verify current live code version."""
     return {
-        "version": "2.8-playwright-cache-sys-info-dirs",
-        "timestamp": "2026-07-04-09:05"
+        "version": "2.9-playwright-cache-explicit-bin",
+        "timestamp": "2026-07-04-09:10"
     }
 
 
