@@ -5,8 +5,10 @@ import ScoreGauge from './ScoreGauge';
 import SkillChips from './SkillChips';
 import ResumeEditor from './ResumeEditor';
 import { exportReport, generateCoverLetter } from '../lib/api';
+import { useAuth } from '../context/authContext';
 
 export default function ResultsDashboard({ report, cvFile, onReset, jobDescription }) {
+  const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState('report'); // 'report' | 'resume'
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
@@ -38,7 +40,19 @@ export default function ResultsDashboard({ report, cvFile, onReset, jobDescripti
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
-      setExportError("Failed to export and download your career report. Please verify the backend is running and try again.");
+      let errMsg = "Failed to export and download your career report. Please verify the backend is running and try again.";
+      if (err.response && err.response.data) {
+        if (err.response.data instanceof Blob) {
+          try {
+            const text = await err.response.data.text();
+            const parsed = JSON.parse(text);
+            if (parsed.detail) errMsg = parsed.detail;
+          } catch (_) {}
+        } else if (err.response.data.detail) {
+          errMsg = err.response.data.detail;
+        }
+      }
+      setExportError(errMsg);
     } finally {
       setIsExporting(false);
     }
@@ -46,9 +60,14 @@ export default function ResultsDashboard({ report, cvFile, onReset, jobDescripti
 
   const handleDownloadCoverLetter = async () => {
     if (!jobDescription) return;
-    setIsExportingCL(true);
     setExportError(null);
 
+    if (!profile?.default_resume_url) {
+      setExportError("You haven't uploaded a default master resume yet. Please upload one under your profile details (bottom-left avatar) to enable instant cover letter generation.");
+      return;
+    }
+
+    setIsExportingCL(true);
     try {
       const pdfBlob = await generateCoverLetter(jobDescription);
       const url = window.URL.createObjectURL(new Blob([pdfBlob], { type: 'application/pdf' }));
@@ -61,7 +80,19 @@ export default function ResultsDashboard({ report, cvFile, onReset, jobDescripti
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
-      setExportError("Failed to generate and download cover letter. Please verify the backend and try again.");
+      let errMsg = "Failed to generate and download cover letter. Please verify the backend and try again.";
+      if (err.response && err.response.data) {
+        if (err.response.data instanceof Blob) {
+          try {
+            const text = await err.response.data.text();
+            const parsed = JSON.parse(text);
+            if (parsed.detail) errMsg = parsed.detail;
+          } catch (_) {}
+        } else if (err.response.data.detail) {
+          errMsg = err.response.data.detail;
+        }
+      }
+      setExportError(errMsg);
     } finally {
       setIsExportingCL(false);
     }

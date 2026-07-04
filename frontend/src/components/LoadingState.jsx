@@ -62,13 +62,38 @@ export default function LoadingState({ message }) {
   const elapsed = useElapsed();
 
   useEffect(() => {
-    // Advance step every ~18 seconds — covers the full multi-pass pipeline (~2 min)
-    // But never go past last step — stay on "Finalising results" once we reach it
+    if (message) return;
     const interval = setInterval(() => {
       setCurrentStepIndex((prev) => (prev < STEPS.length - 1 ? prev + 1 : prev));
     }, 18000);
     return () => clearInterval(interval);
-  }, []);
+  }, [message]);
+
+  if (message) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-20 text-center flex flex-col items-center justify-center min-h-[400px]">
+        <div className="relative mb-8">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+            className="absolute -inset-4 rounded-full border border-dashed border-brand-500/40"
+          />
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-brand-600 to-amber-500 flex items-center justify-center text-dark-base shadow-lg shadow-brand-600/20 font-bold text-2xl border border-white/10 relative z-10">
+            JS
+          </div>
+        </div>
+        <div className="space-y-3">
+          <h2 className="text-xl font-bold text-white font-heading">
+            {message}
+          </h2>
+          <div className="flex items-center justify-center gap-2 text-xs text-slate-500 font-medium">
+            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            Loading resources...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const ActiveIcon = STEPS[currentStepIndex].icon;
 
