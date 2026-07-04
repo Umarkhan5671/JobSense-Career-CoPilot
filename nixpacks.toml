@@ -1,10 +1,11 @@
 # nixpacks.toml
 
 [phases.install]
-cmds = [
-    "pip install -r requirements.txt",
-    "PLAYWRIGHT_BROWSERS_PATH=/app/.venv/ms-playwright /app/.venv/bin/playwright install --with-deps chromium"
-]
+cmds = ["pip install -r requirements.txt"]
+
+[phases.build]
+dependsOn = ["install"]
+cmds = ["PLAYWRIGHT_BROWSERS_PATH=/app/.venv/ms-playwright /app/.venv/bin/playwright install --with-deps chromium"]
 
 [variables]
 PLAYWRIGHT_BROWSERS_PATH = "/app/.venv/ms-playwright"
