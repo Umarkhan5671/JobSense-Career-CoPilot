@@ -12,8 +12,8 @@ except Exception:
     pass
 
 import os
-# Programmatically set Playwright browser path to the virtualenv directory (preserved by Nixpacks)
-os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/app/.venv/ms-playwright"
+# Programmatically set Playwright browser path to the globally writable /tmp directory
+os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/tmp/ms-playwright"
 
 import tempfile
 import logging
@@ -61,6 +61,28 @@ app.add_middleware(
 )
 
 
+@app.on_event("startup")
+def install_playwright_if_needed():
+    """Ensure Playwright chromium is installed in the writable /tmp folder on startup."""
+    import subprocess
+    import sys
+    browser_dir = "/tmp/ms-playwright"
+    if not os.path.exists(browser_dir) or not os.listdir(browser_dir):
+        logger.info("Playwright chromium not found in /tmp/ms-playwright. Installing...")
+        try:
+            # Run playwright install chromium
+            subprocess.run(
+                [sys.executable, "-m", "playwright", "install", "chromium"],
+                check=True,
+                env=os.environ
+            )
+            logger.info("Playwright chromium installed successfully in /tmp/ms-playwright!")
+        except Exception as install_err:
+            logger.error(f"Failed to install playwright chromium on startup: {install_err}", exc_info=True)
+    else:
+        logger.info("Playwright chromium is already cached in /tmp/ms-playwright.")
+
+
 @app.get("/api/health")
 def health_check():
     """Verify that backend is online and Groq API key is configured."""
@@ -74,8 +96,8 @@ def health_check():
 def version_check():
     """Diagnostic endpoint to verify current live code version."""
     return {
-        "version": "3.0-playwright-cache-build-phase",
-        "timestamp": "2026-07-04-09:15"
+        "version": "3.1-playwright-cache-tmp-dir",
+        "timestamp": "2026-07-04-09:20"
     }
 
 
@@ -85,7 +107,7 @@ def sys_info_check():
     import sys, locale, platform, os
     
     # List files in ms-playwright directory if it exists
-    ms_playwright_dir = "/app/.venv/ms-playwright"
+    ms_playwright_dir = "/tmp/ms-playwright"
     playwright_files = []
     if os.path.exists(ms_playwright_dir):
         try:
