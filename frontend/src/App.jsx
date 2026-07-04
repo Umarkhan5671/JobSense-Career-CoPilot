@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from './context/authContext';
 import LandingPage from './components/LandingPage';
 import ResumeSetup from './components/ResumeSetup';
@@ -52,6 +52,7 @@ export default function App() {
   const [errorMsg, setErrorMsg] = useState('');
   
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
   
@@ -62,6 +63,19 @@ export default function App() {
   
   const avatarInputRef = useRef(null);
   const swapResumeInputRef = useRef(null);
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const showFullSidebar = !isMobile ? !isSidebarCollapsed : true;
 
   const handleStart = () => {
     setActiveNav('analyze');
@@ -156,24 +170,38 @@ export default function App() {
     return <LandingPage onLoginSuccess={refreshProfile} />;
   }
 
-  // 3. Resume Setup protection (ensures they have a master resume to start)
-  if (!profile || !profile.default_resume_url) {
-    return <ResumeSetup />;
-  }
-
-  const defaultResumeFilename = profile.default_resume_url ? profile.default_resume_url.split('/').pop() : 'Default Resume.pdf';
+  const defaultResumeFilename = profile?.default_resume_url ? profile.default_resume_url.split('/').pop() : 'Default Resume.pdf';
 
   return (
     <div className="min-h-screen bg-dark-base text-slate-100 flex font-sans overflow-hidden">
+      {/* Sidebar Backdrop Overlay on mobile */}
+      <AnimatePresence>
+        {isMobileDrawerOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsMobileDrawerOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs z-35 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar Navigation */}
       <aside
-        className={`bg-dark-panel border-r border-dark-border text-slate-300 transition-all duration-300 flex flex-col shrink-0 relative z-30 ${
-          isSidebarCollapsed ? 'w-20' : 'w-64'
-        }`}
+        className={`bg-dark-panel border-r border-dark-border text-slate-300 transition-all duration-300 flex flex-col shrink-0 z-40 
+          /* Mobile layout */
+          fixed top-0 bottom-0 left-0 w-64
+          ${isMobileDrawerOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}
+          
+          /* Desktop layout */
+          md:relative md:translate-x-0 md:flex
+          ${isSidebarCollapsed ? 'md:w-20' : 'md:w-64'}
+        `}
       >
         {/* Brand Header / Animated Hamburger wrapper */}
         <div className="h-20 flex items-center justify-between px-5 border-b border-dark-border overflow-hidden shrink-0">
-          {!isSidebarCollapsed ? (
+          {showFullSidebar ? (
             <>
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-gradient-to-tr from-brand-600 to-amber-500 rounded-xl flex items-center justify-center text-dark-base shadow font-bold text-lg shrink-0">
@@ -188,10 +216,22 @@ export default function App() {
                   </span>
                 </div>
               </div>
-              <HamburgerIcon
-                isOpen={true}
-                onClick={() => setIsSidebarCollapsed(true)}
-              />
+              {/* Hamburger on desktop, Close (X) on mobile */}
+              <div className="hidden md:block">
+                <HamburgerIcon
+                  isOpen={true}
+                  onClick={() => setIsSidebarCollapsed(true)}
+                />
+              </div>
+              <div className="md:hidden">
+                <button
+                  onClick={() => setIsMobileDrawerOpen(false)}
+                  className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                  aria-label="Close Drawer"
+                >
+                  <X size={20} className="text-brand-bronze" />
+                </button>
+              </div>
             </>
           ) : (
             <div className="w-full flex justify-center">
@@ -207,7 +247,7 @@ export default function App() {
         <nav className="flex-1 py-8 space-y-4 px-4">
           <div className="relative group">
             <button
-              onClick={() => { setActiveNav('hero'); setAnalyzeView('form'); }}
+              onClick={() => { setActiveNav('hero'); setAnalyzeView('form'); setIsMobileDrawerOpen(false); }}
               className={`w-full flex items-center gap-3.5 px-4.5 py-4 rounded-xl text-sm font-semibold transition-all ${
                 activeNav === 'hero'
                   ? 'bg-brand-600/15 text-brand-bronze border border-brand-600/20'
@@ -215,9 +255,9 @@ export default function App() {
               }`}
             >
               <LayoutDashboard size={18} />
-              {!isSidebarCollapsed && <span>Dashboard</span>}
+              {showFullSidebar && <span>Dashboard</span>}
             </button>
-            {isSidebarCollapsed && (
+            {!showFullSidebar && (
               <span className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2 py-1 text-xs bg-slate-850 border border-dark-border text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-40">
                 Dashboard
               </span>
@@ -226,7 +266,7 @@ export default function App() {
 
           <div className="relative group">
             <button
-              onClick={() => { setActiveNav('analyze'); setAnalyzeView('form'); }}
+              onClick={() => { setActiveNav('analyze'); setAnalyzeView('form'); setIsMobileDrawerOpen(false); }}
               className={`w-full flex items-center gap-3.5 px-4.5 py-4 rounded-xl text-sm font-semibold transition-all ${
                 activeNav === 'analyze'
                   ? 'bg-brand-600/15 text-brand-bronze border border-brand-600/20'
@@ -234,9 +274,9 @@ export default function App() {
               }`}
             >
               <Sparkles size={18} />
-              {!isSidebarCollapsed && <span>Analyze CV vs JD</span>}
+              {showFullSidebar && <span>Analyze CV vs JD</span>}
             </button>
-            {isSidebarCollapsed && (
+            {!showFullSidebar && (
               <span className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2 py-1 text-xs bg-slate-850 border border-dark-border text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-40">
                 Analyze CV vs JD
               </span>
@@ -245,7 +285,7 @@ export default function App() {
 
           <div className="relative group">
             <button
-              onClick={() => setActiveNav('compare')}
+              onClick={() => { setActiveNav('compare'); setIsMobileDrawerOpen(false); }}
               className={`w-full flex items-center gap-3.5 px-4.5 py-4 rounded-xl text-sm font-semibold transition-all ${
                 activeNav === 'compare'
                   ? 'bg-brand-600/15 text-brand-bronze border border-brand-600/20'
@@ -253,9 +293,9 @@ export default function App() {
               }`}
             >
               <FileSpreadsheet size={18} />
-              {!isSidebarCollapsed && <span>Compare Resumes</span>}
+              {showFullSidebar && <span>Compare Resumes</span>}
             </button>
-            {isSidebarCollapsed && (
+            {!showFullSidebar && (
               <span className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2 py-1 text-xs bg-slate-850 border border-dark-border text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-40">
                 Compare Resumes
               </span>
@@ -267,7 +307,7 @@ export default function App() {
         <div className="p-4.5 border-t border-dark-border shrink-0">
           <div className="flex items-center justify-between gap-3 overflow-hidden">
             <button
-              onClick={() => setIsProfileModalOpen(true)}
+              onClick={() => { setIsProfileModalOpen(true); setIsMobileDrawerOpen(false); }}
               className="flex items-center gap-3 text-left overflow-hidden group focus:outline-none flex-1"
               title="Open profile details"
             >
@@ -281,7 +321,7 @@ export default function App() {
                   )}
                 </div>
 
-              {!isSidebarCollapsed && (
+              {showFullSidebar && (
                 <div className="flex-grow min-w-0">
                   <p className="text-xs font-bold text-slate-200 truncate group-hover:text-brand-bronze transition-colors">
                     {profile?.full_name || 'JobSense User'}
@@ -293,7 +333,7 @@ export default function App() {
               )}
             </button>
 
-            {!isSidebarCollapsed && (
+            {showFullSidebar && (
               <button
                 onClick={signOut}
                 className="p-1.5 text-slate-500 hover:text-rose-500 hover:bg-slate-800 rounded-lg transition-colors"
@@ -309,12 +349,22 @@ export default function App() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Sticky Header */}
-        <header className="sticky top-0 z-20 h-20 border-b border-dark-border/40 bg-dark-panel/60 backdrop-blur-xl flex items-center justify-between px-8 shrink-0 shadow-lg shadow-brand-600/5">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-400">Workspace /</span>
-            <span className="text-xs font-bold bg-gradient-to-r from-brand-gold via-brand-bronze to-amber-500 bg-clip-text text-transparent capitalize tracking-wider">
-              {activeNav === 'hero' ? 'Dashboard' : activeNav}
-            </span>
+        <header className="sticky top-0 z-20 h-20 border-b border-dark-border/40 bg-dark-panel/60 backdrop-blur-xl flex items-center justify-between px-4 md:px-8 shrink-0 shadow-lg shadow-brand-600/5">
+          <div className="flex items-center gap-3">
+            {/* Hamburger menu button on mobile/tablet */}
+            <div className="md:hidden">
+              <HamburgerIcon
+                isOpen={isMobileDrawerOpen}
+                onClick={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}
+              />
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-slate-400 hidden sm:inline">Workspace /</span>
+              <span className="text-xs font-bold bg-gradient-to-r from-brand-gold via-brand-bronze to-amber-500 bg-clip-text text-transparent capitalize tracking-wider">
+                {activeNav === 'hero' ? 'Dashboard' : activeNav}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -327,7 +377,13 @@ export default function App() {
 
         {/* Scrollable Content Container */}
         <main className="flex-grow overflow-y-auto">
-          {activeNav === 'hero' && <Hero onStartClick={handleStart} />}
+          {activeNav === 'hero' && (
+            <Hero
+              onStartClick={handleStart}
+              hasDefaultResume={!!profile?.default_resume_url}
+              onUploadMasterClick={() => setIsProfileModalOpen(true)}
+            />
+          )}
           
           {activeNav === 'analyze' && (
             <>

@@ -41,11 +41,11 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // 1. Check active session on mount
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfileAndAvatar(session.user.id);
+        await fetchProfileAndAvatar(session.user.id);
       }
       setLoading(false);
     });

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, Cpu, Target, Award } from 'lucide-react';
+import { ArrowRight, Sparkles, Cpu, Target, Award, AlertCircle, UploadCloud } from 'lucide-react';
 
-export default function Hero({ onStartClick }) {
+export default function Hero({ onStartClick, hasDefaultResume, onUploadMasterClick }) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   // Auto-play loop for the 3D flip card (flips every 3.5 seconds)
@@ -59,6 +59,29 @@ export default function Hero({ onStartClick }) {
               vector stores to cross-reference your skills and experiences, providing a detailed 
               gap analysis, interview talking points, and tailored CV bullet rewrites in seconds.
             </p>
+
+            {!hasDefaultResume && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/20 space-y-3 max-w-2xl"
+              >
+                <div className="flex items-center gap-3 text-brand-gold">
+                  <AlertCircle size={18} className="shrink-0 animate-pulse" />
+                  <span className="font-heading font-bold text-sm">No Master Resume Uploaded</span>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  You haven't uploaded a default master resume to your profile yet. Upload a master resume now to enable instant one-click tailoring and profile-based RAG analysis.
+                </p>
+                <button
+                  onClick={onUploadMasterClick}
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-brand-600/20 hover:bg-brand-600/35 border border-brand-600/30 text-brand-gold text-xs font-bold rounded-lg transition-all cursor-pointer"
+                >
+                  <UploadCloud size={14} />
+                  Upload Master Resume
+                </button>
+              </motion.div>
+            )}
 
             {/* Call-to-action */}
             <div className="pt-2 flex flex-col sm:flex-row items-start gap-4">
