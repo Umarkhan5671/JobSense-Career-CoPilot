@@ -74,22 +74,43 @@ def health_check():
 def version_check():
     """Diagnostic endpoint to verify current live code version."""
     return {
-        "version": "2.7-playwright-cache-venv-dir",
-        "timestamp": "2026-07-03-23:35"
+        "version": "2.8-playwright-cache-sys-info-dirs",
+        "timestamp": "2026-07-04-09:05"
     }
 
 
 @app.get("/api/sys-info")
 def sys_info_check():
-    """Check platform and encoding environment settings on the host."""
-    import sys, locale, platform
+    """Check platform, encoding, and playwright directory contents on the host."""
+    import sys, locale, platform, os
+    
+    # List files in ms-playwright directory if it exists
+    ms_playwright_dir = "/app/.venv/ms-playwright"
+    playwright_files = []
+    if os.path.exists(ms_playwright_dir):
+        try:
+            for root, dirs, files in os.walk(ms_playwright_dir):
+                # Only show top 2 levels to avoid huge output
+                depth = root.replace(ms_playwright_dir, "").count(os.sep)
+                if depth < 2:
+                    playwright_files.append(f"{root} -> dirs: {dirs}, files: {files}")
+        except Exception as e:
+            playwright_files.append(f"Error listing: {e}")
+    else:
+        playwright_files.append(f"Directory {ms_playwright_dir} does not exist.")
+        
+    # Check if /root/.cache exists
+    root_cache_exists = os.path.exists("/root/.cache/ms-playwright")
+    
     return {
         "platform": platform.platform(),
         "sys_platform": sys.platform,
         "os_name": os.name,
         "preferred_encoding": locale.getpreferredencoding(),
         "stdout_encoding": getattr(sys.stdout, "encoding", "unknown"),
-        "stderr_encoding": getattr(sys.stderr, "encoding", "unknown")
+        "stderr_encoding": getattr(sys.stderr, "encoding", "unknown"),
+        "playwright_files": playwright_files,
+        "root_cache_exists": root_cache_exists
     }
 
 
