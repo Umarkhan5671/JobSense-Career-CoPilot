@@ -65,12 +65,6 @@ COVER_LETTER_HTML_TEMPLATE = """
             margin-bottom: 8px;
         }
         
-        .contact-info span:not(:last-child)::after {
-            content: " • ";
-            margin: 0 6px;
-            color: #888888;
-        }
-        
         .header-line {
             border: 0;
             border-top: 1.5px solid #000000;
@@ -130,18 +124,12 @@ COVER_LETTER_HTML_TEMPLATE = """
         {% endif %}
         
         <div class="contact-info">
-            {% if location %}
-                <span>{{ location }}</span>
-            {% endif %}
-            {% if phone %}
-                <span>{{ phone }}</span>
-            {% endif %}
-            {% if email %}
-                <span>{{ email }}</span>
-            {% endif %}
-            {% if linkedin %}
-                <span>{{ linkedin }}</span>
-            {% endif %}
+            {% set contact_items = [] %}
+            {% if location %}{% set _ = contact_items.append(location) %}{% endif %}
+            {% if phone %}{% set _ = contact_items.append(phone) %}{% endif %}
+            {% if email %}{% set _ = contact_items.append(email) %}{% endif %}
+            {% if linkedin %}{% set _ = contact_items.append(linkedin) %}{% endif %}
+            {{ contact_items | join(" • ") }}
         </div>
         <hr class="header-line" />
     </div>

@@ -56,12 +56,6 @@ RESUME_HTML_TEMPLATE = """
             margin-bottom: 10px;
         }
         
-        .contact-info span:not(:last-child)::after {
-            content: " | ";
-            margin: 0 6px;
-            color: #888888;
-        }
-        
         .header-line {
             border: 0;
             border-top: 1.5px solid #000000;
@@ -153,22 +147,14 @@ RESUME_HTML_TEMPLATE = """
         {% elif resume.work_experience and resume.work_experience[0].title %}
             <div class="subtitle">{{ resume.work_experience[0].title }}</div>
         {% endif %}
-        
         <div class="contact-info">
-            {% if resume.contact_info.location %}
-                <span>{{ resume.contact_info.location }}</span>
-            {% endif %}
-            {% if resume.contact_info.email %}
-                <span>{{ resume.contact_info.email }}</span>
-            {% endif %}
-            {% if resume.contact_info.phone %}
-                <span>{{ resume.contact_info.phone }}</span>
-            {% endif %}
-            {% if resume.contact_info.linkedin %}
-                <span>{{ resume.contact_info.linkedin }}</span>
-            {% elif resume.contact_info.github %}
-                <span>{{ resume.contact_info.github }}</span>
-            {% endif %}
+            {% set contact_items = [] %}
+            {% if resume.contact_info.location %}{% set _ = contact_items.append(resume.contact_info.location) %}{% endif %}
+            {% if resume.contact_info.email %}{% set _ = contact_items.append(resume.contact_info.email) %}{% endif %}
+            {% if resume.contact_info.phone %}{% set _ = contact_items.append(resume.contact_info.phone) %}{% endif %}
+            {% if resume.contact_info.linkedin %}{% set _ = contact_items.append(resume.contact_info.linkedin) %}
+            {% elif resume.contact_info.github %}{% set _ = contact_items.append(resume.contact_info.github) %}{% endif %}
+            {{ contact_items | join(" | ") }}
         </div>
         <hr class="header-line" />
     </div>

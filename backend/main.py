@@ -104,8 +104,8 @@ def health_check():
 def version_check():
     """Diagnostic endpoint to verify current live code version."""
     return {
-        "version": "7.1-xhtml2pdf-css-preprocessed",
-        "timestamp": "2026-07-04-10:05"
+        "version": "8.0-no-pseudo-css",
+        "timestamp": "2026-07-04-10:15"
     }
 
 
