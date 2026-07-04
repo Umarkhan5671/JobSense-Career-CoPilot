@@ -80,22 +80,42 @@ def health_check():
 def version_check():
     """Diagnostic endpoint to verify current live code version."""
     return {
-        "version": "5.0-nix-chromium",
-        "timestamp": "2026-07-04-09:45"
+        "version": "5.1-nix-chromium-diagnostics",
+        "timestamp": "2026-07-04-09:50"
     }
 
 
 @app.get("/api/sys-info")
 def sys_info_check():
     """Check platform and encoding environment settings on the host."""
-    import sys, locale, platform, os
+    import sys, locale, platform, os, shutil
+    
+    # Check for chromium in PATH
+    chromium_in_path = shutil.which("chromium") or shutil.which("chromium-browser")
+    
+    # Search common nix paths
+    nix_bin_exists = os.path.exists("/nix/var/nix/profiles/default/bin")
+    nix_bins = []
+    if nix_bin_exists:
+        try:
+            nix_bins = os.listdir("/nix/var/nix/profiles/default/bin")
+        except Exception as e:
+            nix_bins = [f"Error: {e}"]
+            
+    # Check env variables
+    playwright_env = {k: v for k, v in os.environ.items() if "PLAYWRIGHT" in k or "PATH" in k}
+    
     return {
         "platform": platform.platform(),
         "sys_platform": sys.platform,
         "os_name": os.name,
         "preferred_encoding": locale.getpreferredencoding(),
         "stdout_encoding": getattr(sys.stdout, "encoding", "unknown"),
-        "stderr_encoding": getattr(sys.stderr, "encoding", "unknown")
+        "stderr_encoding": getattr(sys.stderr, "encoding", "unknown"),
+        "chromium_in_path": chromium_in_path,
+        "nix_bin_exists": nix_bin_exists,
+        "nix_bins": nix_bins,
+        "playwright_env": playwright_env
     }
 
 
