@@ -12,8 +12,6 @@ except Exception:
     pass
 
 import os
-# Programmatically set Playwright browser path to the globally writable /tmp directory
-os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/tmp/ms-playwright"
 
 import tempfile
 import logging
@@ -57,30 +55,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["X-Fallback-Applied"],
-)
-
-
-@app.on_event("startup")
-def install_playwright_if_needed():
-    """Ensure Playwright chromium is installed in the writable /tmp folder on startup."""
-    import subprocess
-    import sys
-    browser_dir = "/tmp/ms-playwright"
-    if not os.path.exists(browser_dir) or not os.listdir(browser_dir):
-        logger.info("Playwright chromium not found in /tmp/ms-playwright. Installing...")
-        try:
-            # Run playwright install chromium
-            subprocess.run(
-                [sys.executable, "-m", "playwright", "install", "chromium"],
-                check=True,
-                env=os.environ
-            )
-            logger.info("Playwright chromium installed successfully in /tmp/ms-playwright!")
-        except Exception as install_err:
-            logger.error(f"Failed to install playwright chromium on startup: {install_err}", exc_info=True)
-    else:
-        logger.info("Playwright chromium is already cached in /tmp/ms-playwright.")
+    )
 
 
 @app.get("/api/health")
@@ -96,43 +71,22 @@ def health_check():
 def version_check():
     """Diagnostic endpoint to verify current live code version."""
     return {
-        "version": "3.4-playwright-cache-nix-pkgs",
-        "timestamp": "2026-07-04-09:35"
+        "version": "4.0-docker-deployment",
+        "timestamp": "2026-07-04-09:40"
     }
 
 
 @app.get("/api/sys-info")
 def sys_info_check():
-    """Check platform, encoding, and playwright directory contents on the host."""
+    """Check platform and encoding environment settings on the host."""
     import sys, locale, platform, os
-    
-    # List files in ms-playwright directory if it exists
-    ms_playwright_dir = "/tmp/ms-playwright"
-    playwright_files = []
-    if os.path.exists(ms_playwright_dir):
-        try:
-            for root, dirs, files in os.walk(ms_playwright_dir):
-                # Only show top 2 levels to avoid huge output
-                depth = root.replace(ms_playwright_dir, "").count(os.sep)
-                if depth < 2:
-                    playwright_files.append(f"{root} -> dirs: {dirs}, files: {files}")
-        except Exception as e:
-            playwright_files.append(f"Error listing: {e}")
-    else:
-        playwright_files.append(f"Directory {ms_playwright_dir} does not exist.")
-        
-    # Check if /root/.cache exists
-    root_cache_exists = os.path.exists("/root/.cache/ms-playwright")
-    
     return {
         "platform": platform.platform(),
         "sys_platform": sys.platform,
         "os_name": os.name,
         "preferred_encoding": locale.getpreferredencoding(),
         "stdout_encoding": getattr(sys.stdout, "encoding", "unknown"),
-        "stderr_encoding": getattr(sys.stderr, "encoding", "unknown"),
-        "playwright_files": playwright_files,
-        "root_cache_exists": root_cache_exists
+        "stderr_encoding": getattr(sys.stderr, "encoding", "unknown")
     }
 
 
