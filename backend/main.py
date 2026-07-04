@@ -96,8 +96,8 @@ def health_check():
 def version_check():
     """Diagnostic endpoint to verify current live code version."""
     return {
-        "version": "3.3-playwright-cache-apt-direct",
-        "timestamp": "2026-07-04-09:30"
+        "version": "3.4-playwright-cache-nix-pkgs",
+        "timestamp": "2026-07-04-09:35"
     }
 
 
