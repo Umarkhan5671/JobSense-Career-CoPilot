@@ -104,8 +104,8 @@ def health_check():
 def version_check():
     """Diagnostic endpoint to verify current live code version."""
     return {
-        "version": "6.0-aptfile-playwright-tmp",
-        "timestamp": "2026-07-04-09:55"
+        "version": "7.0-xhtml2pdf-fallback",
+        "timestamp": "2026-07-04-10:00"
     }
 
 

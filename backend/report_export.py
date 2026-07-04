@@ -349,33 +349,46 @@ def generate_pdf_sync(html: str) -> bytes:
     import tempfile
     import os
     import pathlib
+    import logging
     from playwright.sync_api import sync_playwright
     
-    temp_fd, temp_path = tempfile.mkstemp(suffix=".html")
     try:
-        with os.fdopen(temp_fd, "w", encoding="utf-8") as f:
-            f.write(html)
-        
-        file_uri = pathlib.Path(temp_path).as_uri()
-        
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            context = browser.new_context()
-            page = context.new_page()
-            page.goto(file_uri)
-            page.evaluate("document.fonts.ready")
-            pdf_bytes = page.pdf(
-                format="A4",
-                print_background=True,
-                margin={"top": "15mm", "bottom": "15mm", "left": "15mm", "right": "15mm"}
-            )
-            browser.close()
-            return pdf_bytes
-    finally:
+        temp_fd, temp_path = tempfile.mkstemp(suffix=".html")
         try:
-            os.remove(temp_path)
-        except Exception:
-            pass
+            with os.fdopen(temp_fd, "w", encoding="utf-8") as f:
+                f.write(html)
+            
+            file_uri = pathlib.Path(temp_path).as_uri()
+            
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                context = browser.new_context()
+                page = context.new_page()
+                page.goto(file_uri)
+                page.evaluate("document.fonts.ready")
+                pdf_bytes = page.pdf(
+                    format="A4",
+                    print_background=True,
+                    margin={"top": "15mm", "bottom": "15mm", "left": "15mm", "right": "15mm"}
+                )
+                browser.close()
+                return pdf_bytes
+        finally:
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+    except Exception as playwright_err:
+        logging.getLogger("jobsense-backend").warning(
+            f"Playwright PDF generation failed, falling back to xhtml2pdf: {playwright_err}"
+        )
+        from xhtml2pdf import pisa
+        import io
+        pdf_buffer = io.BytesIO()
+        pisa_status = pisa.CreatePDF(html, dest=pdf_buffer)
+        if pisa_status.err:
+            raise RuntimeError(f"xhtml2pdf also failed: {pisa_status.err}") from playwright_err
+        return pdf_buffer.getvalue()
 
 async def export_report_to_pdf(report_data: dict) -> bytes:
     now = datetime.datetime.now()
