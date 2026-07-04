@@ -305,10 +305,23 @@ def generate_pdf_sync(html: str) -> bytes:
         logging.getLogger("jobsense-backend").warning(
             f"Playwright PDF generation failed, falling back to xhtml2pdf: {playwright_err}"
         )
+        import re
         from xhtml2pdf import pisa
         import io
+        
+        # Preprocess HTML to replace var(--variable-name) with hardcoded values for xhtml2pdf compatibility
+        declarations = re.findall(r"(--[a-zA-Z0-9_-]+)\s*:\s*([^;}\n]+)", html)
+        var_map = {}
+        for name, value in declarations:
+            var_map[name.strip()] = value.strip()
+            
+        processed_html = html
+        for name, value in var_map.items():
+            pattern = re.compile(r"var\(\s*" + re.escape(name) + r"\s*\)", re.IGNORECASE)
+            processed_html = pattern.sub(value, processed_html)
+            
         pdf_buffer = io.BytesIO()
-        pisa_status = pisa.CreatePDF(html, dest=pdf_buffer)
+        pisa_status = pisa.CreatePDF(processed_html, dest=pdf_buffer)
         if pisa_status.err:
             raise RuntimeError(f"xhtml2pdf also failed: {pisa_status.err}") from playwright_err
         return pdf_buffer.getvalue()
