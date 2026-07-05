@@ -502,7 +502,7 @@ export default function App() {
                         </p>
                       </div>
                     </div>
-                    {profile.resume_updated_at && (
+                    {profile?.resume_updated_at && (
                       <span className="text-[10px] text-slate-500 font-semibold whitespace-nowrap">
                         Uploaded: {new Date(profile.resume_updated_at).toLocaleDateString()}
                       </span>

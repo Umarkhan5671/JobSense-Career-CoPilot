@@ -41,21 +41,21 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // 1. Check active session on mount
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        await fetchProfileAndAvatar(session.user.id);
+        fetchProfileAndAvatar(session.user.id);
       }
       setLoading(false);
     });
 
     // 2. Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        await fetchProfileAndAvatar(session.user.id);
+        fetchProfileAndAvatar(session.user.id);
       } else {
         setProfile(null);
         setAvatarUrl(null);
