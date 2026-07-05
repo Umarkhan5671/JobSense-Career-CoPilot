@@ -128,7 +128,7 @@ This practice project was developed during the starting phase of **Bootcamp 6.0*
 
 Special thanks to our mentors:
 - **Sir Qasim**
-- **Sir Hamza**
+- **Sir Hanzala**
 
 Thank you both for your constant support, mentorship, and guidance throughout this journey!
 
