@@ -62,23 +62,28 @@ app = FastAPI(
 # Enable CORS for frontend development servers supporting dynamic local ports
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3000",
+        "https://jobsense-ai.vercel.app",
+    ],
     allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?|https://jobsense-ai(-[a-z0-9-]+)?\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    )
+)
 
 
-@app.on_event("startup")
-def install_playwright_if_needed():
-    """Ensure Playwright chromium is installed in the writable /tmp folder on startup."""
+def run_playwright_install():
+    """Download Playwright chromium in a background thread to prevent boot timeouts."""
     import subprocess
     import sys
     browser_dir = "/tmp/ms-playwright"
     if not os.path.exists(browser_dir) or not os.listdir(browser_dir):
-        logger.info("Playwright chromium not found in /tmp/ms-playwright. Installing...")
+        logger.info("Playwright chromium not found in /tmp/ms-playwright. Installing in background...")
         try:
-            # Run playwright install chromium
             subprocess.run(
                 [sys.executable, "-m", "playwright", "install", "chromium"],
                 check=True,
@@ -86,9 +91,15 @@ def install_playwright_if_needed():
             )
             logger.info("Playwright chromium installed successfully in /tmp/ms-playwright!")
         except Exception as install_err:
-            logger.error(f"Failed to install playwright chromium on startup: {install_err}", exc_info=True)
+            logger.error(f"Failed to install playwright chromium in background: {install_err}", exc_info=True)
     else:
         logger.info("Playwright chromium is already cached in /tmp/ms-playwright.")
+
+
+@app.on_event("startup")
+def install_playwright_if_needed():
+    import threading
+    threading.Thread(target=run_playwright_install, daemon=True).start()
 
 
 @app.get("/api/health")
@@ -104,8 +115,8 @@ def health_check():
 def version_check():
     """Diagnostic endpoint to verify current live code version."""
     return {
-        "version": "8.0-no-pseudo-css",
-        "timestamp": "2026-07-04-10:15"
+        "version": "9.0-async-playwright-install",
+        "timestamp": "2026-07-05-23:30"
     }
 
 
